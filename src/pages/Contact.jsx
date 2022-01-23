@@ -10,7 +10,8 @@ import { db } from '../firebase.config';
 const Contact = () => {
   const [message, setMessage] = useState('');
   const [landlord, setLandlord] = useState(null);
-  const [searchParams] = useSearchParams()[0];
+  //  eslint-disable-next-line
+  const [searchParams, setSearchParams] = useSearchParams();
   const { landlordId } = useParams();
 
   useEffect(() => {
