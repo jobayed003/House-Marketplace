@@ -1,6 +1,14 @@
-import { collection, getDocs, limit, orderBy, query, where } from 'firebase/firestore';
+import {
+  collection,
+  getDocs,
+  limit,
+  orderBy,
+  query,
+  startAfter,
+  where,
+} from 'firebase/firestore';
 import React, { useEffect, useState } from 'react';
-import { Outlet, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import Spinner from '../components/Spinner';
 import { db } from '../firebase.config';
@@ -10,6 +18,8 @@ const Category = () => {
   const { categoryName } = useParams();
   const [listings, setListings] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [lastFetchedListing, setLastFetchedListing] =
+    useState(null);
 
   useEffect(() => {
     const fetchListings = async () => {
@@ -27,6 +37,10 @@ const Category = () => {
 
         // Execute Query
         const querySnap = await getDocs(q);
+
+        const lastVisible =
+          querySnap.docs[querySnap.docs.length - 1];
+        setLastFetchedListing(lastVisible);
 
         const listings = [];
 
@@ -46,12 +60,56 @@ const Category = () => {
     fetchListings();
   }, [categoryName]);
 
+  // Pagination load more
+
+  const onFetchedMoreListings = async () => {
+    try {
+      // Get Reference
+      const listingsRef = collection(db, 'listings');
+
+      // Create a query
+      const q = query(
+        listingsRef,
+        where('type', '==', categoryName),
+        orderBy('timestamp', 'desc'),
+        startAfter(lastFetchedListing),
+        limit(10)
+      );
+
+      // Execute Query
+      const querySnap = await getDocs(q);
+
+      const lastVisible =
+        querySnap.docs[querySnap.docs.length - 1];
+      setLastFetchedListing(lastVisible);
+
+      const listings = [];
+
+      querySnap.forEach((doc) => {
+        return listings.push({
+          id: doc.id,
+          data: doc.data(),
+        });
+      });
+
+      setListings((prevState) => [
+        ...prevState,
+        ...listings,
+      ]);
+      setLoading(false);
+    } catch {
+      toast.error('Could not fetch listings');
+    }
+  };
+
   return (
     <>
       <div className='category'>
         <header>
           <p className='pageHeader'>
-            {categoryName === 'rent' ? 'Places for rent' : 'Places for sale'}
+            {categoryName === 'rent'
+              ? 'Places for rent'
+              : 'Places for sale'}
           </p>
         </header>
 
@@ -71,6 +129,16 @@ const Category = () => {
                 ))}
               </ul>
             </main>
+            <br />
+            <br />
+            {lastFetchedListing && (
+              <p
+                className='loadMore'
+                onClick={onFetchedMoreListings}
+              >
+                Load More
+              </p>
+            )}
           </>
         ) : (
           <p>No listings for {categoryName}</p>

@@ -2,10 +2,12 @@ import { Link } from 'react-router-dom';
 import bathtubIcon from '../assets/svg/bathtubIcon.svg';
 import bedIcon from '../assets/svg/bedIcon.svg';
 import { ReactComponent as DeleteIcon } from '../assets/svg/deleteIcon.svg';
+import { ReactComponent as UpdateIcon } from '../assets/svg/editIcon.svg';
 
 const ListingItem = ({
   listing,
   id,
+  onUpdate,
   onDelete,
 }) => {
   return (
@@ -32,35 +34,22 @@ const ListingItem = ({
               {listing.offer
                 ? listing.discountedPrice
                     .toString()
-                    .replace(
-                      /\B(?=(\d{3})+(?!\d))/g,
-                      ','
-                    )
+                    .replace(/\B(?=(\d{3})+(?!\d))/g, ',')
                 : listing.regularPrice
                     .toString()
-                    .replace(
-                      /\B(?=(\d{3})+(?!\d))/g,
-                      ','
-                    )}
-              {listing.type ===
-                'rent' && ' /Month'}
+                    .replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+              {listing.type === 'rent' && ' /Month'}
             </p>
 
             <div className='categoryListingInfoDiv'>
-              <img
-                src={bedIcon}
-                alt='bed'
-              />
+              <img src={bedIcon} alt='bed' />
               <p className='categoryListingInfoText'>
                 {listing.bedrooms > 1
                   ? `${listing.bedrooms} Bedrooms`
                   : '1 Bedroom'}
               </p>
 
-              <img
-                src={bathtubIcon}
-                alt='bathtub'
-              />
+              <img src={bathtubIcon} alt='bathtub' />
               <p className='categoryListingInfoText'>
                 {listing.bathrooms > 1
                   ? `${listing.bathrooms} Bathrooms`
@@ -75,11 +64,15 @@ const ListingItem = ({
             className='removeIcon'
             fill='rgba(231,76,60)'
             onClick={() =>
-              onDelete(
-                listing.id,
-                listing.name
-              )
+              onDelete(listing.id, listing.name)
             }
+          />
+        )}
+
+        {onUpdate && (
+          <UpdateIcon
+            className='editIcon'
+            onClick={() => onUpdate(id)}
           />
         )}
       </li>
