@@ -7,11 +7,7 @@ import {
   Popup,
   TileLayer,
 } from 'react-leaflet';
-import {
-  Link,
-  useNavigate,
-  useParams,
-} from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import SwiperCore, {
   A11y,
   Navigation,
@@ -32,7 +28,6 @@ const Listing = () => {
     useState(false);
 
   const { listingId } = useParams();
-  const navigate = useNavigate();
   const auth = getAuth();
 
   useEffect(() => {
@@ -42,7 +37,6 @@ const Listing = () => {
       const docSnap = await getDoc(docRef);
 
       if (docSnap.exists()) {
-        console.log(docSnap.data());
         setListing(docSnap.data());
         setLoading(false);
       }
